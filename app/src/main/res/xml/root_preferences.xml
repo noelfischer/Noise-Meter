@@ -1,0 +1,24 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/sync_header">
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="sync"
+            app:summaryOff="@string/sync_title_off"
+            app:summaryOn="@string/sync_title_on" />
+
+        <SeekBarPreference
+            android:defaultValue="75"
+            android:max="120"
+            app:dependency="sync"
+            app:iconSpaceReserved="false"
+            app:showSeekBarValue="true"
+            app:summary="Choose upper noise limit"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
