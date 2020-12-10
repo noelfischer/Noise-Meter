@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NoiseLevelMeter">
         <service
-            android:name="MyBackgroundService"
+            android:name=".BackgroundService"
             android:label="MyBackGroundService"
             >
         </service>

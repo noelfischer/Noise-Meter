@@ -1,6 +1,5 @@
 package ch.zli.noiselevelmeter;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,15 +8,15 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
-
-import static androidx.core.app.ActivityCompat.requestPermissions;
-
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -34,22 +33,32 @@ public class SettingsActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.settings, new SettingsFragment(context, alarmManager))
+                    .replace(R.id.settings, new SettingsFragment().setContext(context, alarmManager))
                     .commit();
         }
 
         if (!checkPermission(context)) {
             requestPermission();
         }
+        TextView textView = findViewById(R.id.text);
+
+        Observer<Integer> liveDataObserver = integer -> {
+            String text = MyViewModel.getValue() + " dB";
+            textView.setText(text);
+        };
+        MyViewModel.getLiveData().observe(this, liveDataObserver);
+
+
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
         Context context;
         AlarmManager alarmManager;
 
-        public SettingsFragment(Context context, AlarmManager alarmManager) {
+        public Fragment setContext(Context context, AlarmManager alarmManager) {
             this.context = context;
             this.alarmManager = alarmManager;
+            return this;
         }
 
         @Override
@@ -58,7 +67,7 @@ public class SettingsActivity extends AppCompatActivity {
             SwitchPreferenceCompat switchPreferenceCompat = findPreference("sync");
 
             switchPreferenceCompat.setOnPreferenceChangeListener((arg0, active) -> {
-                Intent i = new Intent(context, MyBackgroundService.class);
+                Intent i = new Intent(context, BackgroundService.class);
                 PendingIntent pendingIntent = PendingIntent.getService(context, 0, i, 0);
                 if (!checkPermission(context)) {
                     switchPreferenceCompat.setEnabled(false);
@@ -66,12 +75,12 @@ public class SettingsActivity extends AppCompatActivity {
                 if ((boolean) active) {
 
                     alarmManager.setInexactRepeating(AlarmManager.RTC,
-                            SystemClock.elapsedRealtime() + 300,
-                            300, pendingIntent);
+                            SystemClock.elapsedRealtime(),
+                            6000, pendingIntent);
                     Log.e("INFO", "started alarmManager");
                 } else {
-
                     alarmManager.cancel(pendingIntent);
+                    context.stopService(i);
                     Log.e("INFO", "stopped alarmManager");
                 }
                 return true;
@@ -80,7 +89,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-    public static boolean checkPermission(Context context) {
+    private static boolean checkPermission(Context context) {
         int result = ContextCompat.checkSelfPermission(context,
                 WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(context,
@@ -89,7 +98,7 @@ public class SettingsActivity extends AppCompatActivity {
                 result1 == PackageManager.PERMISSION_GRANTED;
     }
 
-    void requestPermission() {
+    private void requestPermission() {
         ActivityCompat.requestPermissions(SettingsActivity.this, new String[]{WRITE_EXTERNAL_STORAGE, RECORD_AUDIO}, 1);
     }
 
