@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Noise Level Meter</string>
+    <string name="app_name">Noise Meter</string>
     <!-- Settings Activity Title -->
     <string name="title_activity_settings">Settings</string>
 

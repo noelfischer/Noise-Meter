@@ -24,7 +24,6 @@ public class BackgroundService extends Service {
 
         return Service.START_STICKY;
     }
-
     private void recordAudio() {
         String AudioSavePathInDevice = "dev/null";
         try {
