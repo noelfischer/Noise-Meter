@@ -1,20 +1,17 @@
 package ch.zli.noiselevelmeter;
 
 import android.app.AlarmManager;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.ParcelUuid;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -92,7 +89,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-    public void observer() {
+    private void observer() {
         TextView textView = findViewById(R.id.text);
 
         Observer<Integer> liveDataObserver = integer -> {
@@ -118,21 +115,17 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0) {
-                    boolean StoragePermission = grantResults[0] ==
-                            PackageManager.PERMISSION_GRANTED;
-                    boolean RecordPermission = grantResults[1] ==
-                            PackageManager.PERMISSION_GRANTED;
+        if (requestCode == 1) {
+            if (grantResults.length > 0) {
+                boolean StoragePermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean RecordPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
 
-                    if (StoragePermission && RecordPermission) {
-                        Log.e("info", "Permission Granted");
-                    } else {
-                        Log.e("info", "Permission Denied");
-                    }
+                if (StoragePermission && RecordPermission) {
+                    Log.e("info", "Permission Granted");
+                } else {
+                    Log.e("info", "Permission Denied");
                 }
-                break;
+            }
         }
     }
 

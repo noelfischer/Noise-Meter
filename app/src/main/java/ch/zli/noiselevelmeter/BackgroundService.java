@@ -92,7 +92,7 @@ public class BackgroundService extends Service {
         }, delay);
     }
 
-    public void updateWidget() {
+    private void updateWidget() {
         Intent intent = new Intent(this, NewAppWidget.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
 
@@ -101,14 +101,14 @@ public class BackgroundService extends Service {
         sendBroadcast(intent);
     }
 
-    public void notification(int decibel) {
+    private void notification(int decibel) {
         if (decibel >= SettingsActivity.SettingsFragment.sliderValue) {
             NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(0, mBuilder.build());
         }
     }
 
-    public NotificationCompat.Builder createNotification() {
+    private NotificationCompat.Builder createNotification() {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(R.drawable.ic_launcher_background);
         mBuilder.setContentTitle("Alert!");
