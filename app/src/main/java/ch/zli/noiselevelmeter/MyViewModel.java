@@ -14,8 +14,4 @@ public class MyViewModel extends ViewModel {
     public static MutableLiveData<Integer> getLiveData() {
         return mutableLiveData;
     }
-
-    public static Integer getValue() {
-        return mutableLiveData.getValue();
-    }
 }

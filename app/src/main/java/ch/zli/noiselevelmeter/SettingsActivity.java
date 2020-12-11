@@ -1,21 +1,25 @@
 package ch.zli.noiselevelmeter;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.ParcelUuid;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreferenceCompat;
 
 import static android.Manifest.permission.RECORD_AUDIO;
@@ -40,20 +44,14 @@ public class SettingsActivity extends AppCompatActivity {
         if (!checkPermission(context)) {
             requestPermission();
         }
-        TextView textView = findViewById(R.id.text);
-
-        Observer<Integer> liveDataObserver = integer -> {
-            String text = MyViewModel.getValue() + " dB";
-            textView.setText(text);
-        };
-        MyViewModel.getLiveData().observe(this, liveDataObserver);
-
+        observer();
 
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
         Context context;
         AlarmManager alarmManager;
+        static int sliderValue;
 
         public Fragment setContext(Context context, AlarmManager alarmManager) {
             this.context = context;
@@ -65,7 +63,12 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
             SwitchPreferenceCompat switchPreferenceCompat = findPreference("sync");
-
+            SeekBarPreference seekBarPreference = findPreference("slider");
+            sliderValue = seekBarPreference.getValue();
+            seekBarPreference.setOnPreferenceChangeListener((arg0, active) -> {
+                sliderValue = (int) active;
+                return true;
+            });
             switchPreferenceCompat.setOnPreferenceChangeListener((arg0, active) -> {
                 Intent i = new Intent(context, BackgroundService.class);
                 PendingIntent pendingIntent = PendingIntent.getService(context, 0, i, 0);
@@ -88,6 +91,17 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
     }
+
+    public void observer() {
+        TextView textView = findViewById(R.id.text);
+
+        Observer<Integer> liveDataObserver = integer -> {
+            String text = integer + " dB";
+            textView.setText(text);
+        };
+        MyViewModel.getLiveData().observe(this, liveDataObserver);
+    }
+
 
     private static boolean checkPermission(Context context) {
         int result = ContextCompat.checkSelfPermission(context,

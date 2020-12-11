@@ -1,10 +1,15 @@
 package ch.zli.noiselevelmeter;
 
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.IBinder;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Observer;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,6 +20,7 @@ public class BackgroundService extends Service {
 
     public static boolean recorderStatus = false;
     MediaRecorder myAudioRecorder = new MediaRecorder();
+    NotificationCompat.Builder mBuilder = createNotification();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -24,6 +30,7 @@ public class BackgroundService extends Service {
 
         return Service.START_STICKY;
     }
+
     private void recordAudio() {
         String AudioSavePathInDevice = "dev/null";
         try {
@@ -77,11 +84,30 @@ public class BackgroundService extends Service {
                     Log.e("TIME", "seconds: " + delay / 1000);
                     Log.e("sound", new String(new char[decibel]).replace("\0", "#"));
                     Log.e("sound", "" + decibel + " decibel");
+                    notification(decibel);
                 }
             }
         }, delay);
     }
 
+    public void notification(int decibel) {
+        Log.e("NOTIFICATION", "if " + decibel + " is larger than " + SettingsActivity.SettingsFragment.sliderValue);
+        if (decibel >= SettingsActivity.SettingsFragment.sliderValue) {
+            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(0, mBuilder.build());
+        }
+    }
+
+    public NotificationCompat.Builder createNotification() {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setSmallIcon(R.drawable.ic_launcher_foreground);
+        mBuilder.setContentTitle("Alert!");
+        mBuilder.setContentText("The noise level in your area is too high. Leave the area or fix the cause of the noise!");
+        mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
+
+        return mBuilder;
+
+    }
 
     @Override
     public IBinder onBind(Intent intent) {

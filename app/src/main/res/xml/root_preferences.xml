@@ -16,8 +16,9 @@
             android:max="120"
             app:dependency="sync"
             app:iconSpaceReserved="false"
+            app:key="slider"
             app:showSeekBarValue="true"
-            app:summary="Choose upper noise limit"/>
+            app:summary="Choose upper noise limit" />
 
     </PreferenceCategory>
 
