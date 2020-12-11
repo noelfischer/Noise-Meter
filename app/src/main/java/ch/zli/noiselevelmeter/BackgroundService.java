@@ -1,7 +1,10 @@
 package ch.zli.noiselevelmeter;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaRecorder;
@@ -81,17 +84,24 @@ public class BackgroundService extends Service {
                 if (maxAmpl > 0) {
                     int decibel = (int) Math.round(20 * log10(maxAmpl));
                     MyViewModel.setLiveData(decibel);
-                    Log.e("TIME", "seconds: " + delay / 1000);
                     Log.e("sound", new String(new char[decibel]).replace("\0", "#"));
-                    Log.e("sound", "" + decibel + " decibel");
                     notification(decibel);
+                    updateWidget();
                 }
             }
         }, delay);
     }
 
+    public void updateWidget() {
+        Intent intent = new Intent(this, NewAppWidget.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+
+        int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), NewAppWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent);
+    }
+
     public void notification(int decibel) {
-        Log.e("NOTIFICATION", "if " + decibel + " is larger than " + SettingsActivity.SettingsFragment.sliderValue);
         if (decibel >= SettingsActivity.SettingsFragment.sliderValue) {
             NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(0, mBuilder.build());
