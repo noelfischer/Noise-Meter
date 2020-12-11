@@ -110,7 +110,7 @@ public class BackgroundService extends Service {
 
     public NotificationCompat.Builder createNotification() {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-        mBuilder.setSmallIcon(R.drawable.ic_launcher_foreground);
+        mBuilder.setSmallIcon(R.drawable.ic_launcher_background);
         mBuilder.setContentTitle("Alert!");
         mBuilder.setContentText("The noise level in your area is too high. Leave the area or fix the cause of the noise!");
         mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
